@@ -4,7 +4,7 @@ import requests
 import socket
 
 #reading the file.
-torrentfile = open('ubuntu.torrent', 'rb')
+torrentfile = open('torrent-files/ubuntu.torrent', 'rb')
 bencodeText = torrentfile.read()
 #decoding the bencode
 bencodeobject = bencode.decode(bencodeText)
@@ -31,10 +31,16 @@ for i in range(0, len(peers), 6):
 
 #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+message = bytes((chr(19)+"BitTorrent protocol"+8*chr(0)), "utf-8")+hexstring+bytes("ejahekskdhaldhsldhwe","utf-8")
+
 for i in range(0, len(peerList)):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     addr = (peerList[i]["ip"],peerList[i]["port"])
     s.connect(addr)
+    s.sendall(message)
+    print("Send the message")
+    r = s.recv(68)
+    print(r)
     s.close() 
     print(i)
      
