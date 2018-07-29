@@ -4,7 +4,7 @@ import requests
 import socket
 
 #reading the file.
-torrentfile = open('torrent-files/ubuntu.torrent', 'rb')
+torrentfile = open('torrent-files/arch.torrent', 'rb')
 bencodeText = torrentfile.read()
 #decoding the bencode
 bencodeobject = bencode.decode(bencodeText)
@@ -15,7 +15,7 @@ info = bencode.encode(bencodeobject["info"])
 infohash = hashlib.sha1(info)
 hexstring = infohash.digest()
 #sending the request to the tracker and decoding the bencoded response.
-parameters = {"info_hash":hexstring, "peer_id":"ejahekskdhaldhsldhwe", "port" : 6303, "uploaded" : 0, "downloaded":0, "left": 23411, "compact" : 1}
+parameters = {"info_hash":hexstring, "peer_id":"ejahekskdhaldhsldhwe", "port" : 6303, "uploaded" : 0, "downloaded":0, "left": bencodeobject["info"]["length"], "compact" : 1}
 response = requests.get(announceUrl, params=parameters)
 trackerResponse = response.content
 bencodeResponse = bencode.decode(trackerResponse)
@@ -29,7 +29,7 @@ for i in range(0, len(peers), 6):
     item = {"ip":ip, "port": port}
     peerList.append(item)
 
-#s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print("Number of peers {0}".format(len(peerList)))
 
 message = bytes((chr(19)+"BitTorrent protocol"+8*chr(0)), "utf-8")+hexstring+bytes("ejahekskdhaldhsldhwe","utf-8")
 
@@ -38,13 +38,8 @@ for i in range(0, len(peerList)):
     addr = (peerList[i]["ip"],peerList[i]["port"])
     s.connect(addr)
     s.sendall(message)
-    print("Send the message")
-    r = s.recv(68)
-    print(r)
+    for i in range(0,2):
+        r = s.recv(128)
+        print(r)
+        print(i)
     s.close() 
-    print(i)
-    
-    #newly added
-    print ("by Azaru")
-
-     
